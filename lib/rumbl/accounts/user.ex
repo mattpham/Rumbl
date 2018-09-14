@@ -1,6 +1,14 @@
 defmodule Rumbl.Accounts.User do
   @moduledoc """
-  Defines a struct `%User{}` with fields id, name, and username for representing a user
+  Schema that defines a user.
   """
-  defstruct [:id, :name, :username]
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "users" do
+    field :name, :string
+    field :username, :string
+
+    timestamps()
+  end
 end
