@@ -143,4 +143,13 @@ defmodule Rumbl.Multimedia do
   defp put_user(changeset, user) do
     Ecto.Changeset.put_assoc(changeset, :user, user)
   end
+
+  alias Rumbl.Multimedia.Category
+
+  ###
+  # Function to create video categories programatically, not intended for user input
+  ###
+  def create_category(name) do
+    Repo.get_by(Category, name: name) || Repo.insert!(%Category{name: name})
+  end
 end
