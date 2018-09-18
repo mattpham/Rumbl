@@ -62,4 +62,13 @@ defmodule RumblWeb.VideoController do
     |> put_flash(:info, "Video deleted successfully.")
     |> redirect(to: Routes.video_path(conn, :index))
   end
+
+  plug :load_categories when action in [:new, :create, :edit, :update]
+
+  ###
+  # Plug to load categories into assign, available as @categories
+  ###
+  defp load_categories(conn, _) do
+    assign(conn, :categories, Multimedia.list_alphabetical_categories())
+  end
 end

@@ -15,4 +15,13 @@ defmodule Rumbl.Multimedia.Category do
     |> cast(attrs, [:name])
     |> validate_required([:name])
   end
+
+  import Ecto.Query
+
+  ###
+  # Partial query to sort categories alphabetically
+  ###
+  def alphabetical(query) do
+    from c in query, order_by: c.name
+  end
 end
