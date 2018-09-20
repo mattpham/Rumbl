@@ -50,9 +50,9 @@ defmodule RumblWeb.VideoControllerTest do
   end
 
   test "authorizes actions against access by other users", %{conn: conn} do
-    owner = user_fixture("owner")
+    owner = user_fixture(username: "owner")
     video = video_fixture(owner, @create_attrs)
-    non_owner = user_fixture("sneaky")
+    non_owner = user_fixture(username: "sneaky")
     conn = assign(conn, :current_user, non_owner)
 
     assert_error_sent :not_found, fn ->
