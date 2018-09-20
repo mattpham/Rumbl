@@ -1,5 +1,9 @@
 # Rumbl
 
+This repository contains the example application that is built in [Programming Phoenix 1.4](https://pragprog.com/book/phoenix14/programming-phoenix-1-4).
+
+The motivation for this repository is to familiarize myself with Phoenix.
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
