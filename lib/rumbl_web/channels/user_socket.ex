@@ -15,6 +15,9 @@ defmodule RumblWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
+
+  @max_age 2 * 7 * 24 * 60 * 60
+
   def connect(%{"token" => token}, socket) do
     case Phoenix.Token.verify(
       socket,
