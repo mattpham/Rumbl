@@ -12,8 +12,8 @@ defmodule Rumbl.Application do
       Rumbl.Repo,
       # Start the endpoint when the application starts
       RumblWeb.Endpoint,
-      # Starts a worker by calling: Rumbl.Worker.start_link(arg)
-      # {Rumbl.Worker, arg},
+      # Starts the Info System supervisor
+      Rumbl.InfoSys.Supervisor,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
