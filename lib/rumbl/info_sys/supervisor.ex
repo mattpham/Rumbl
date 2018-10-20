@@ -21,6 +21,6 @@ defmodule Rumbl.InfoSys.Supervisor do
       {Task.Supervisor, name: InfoSys.TaskSupervisor},
     ]
 
-    Supervisor.init(children, strategy: :rest_for:one)
+    Supervisor.init(children, strategy: :rest_for_one)
   end
 end
