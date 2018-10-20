@@ -12,7 +12,7 @@ defmodule Rumbl.InfoSys do
   # :score for storing relevance, :text to describe result, :url for the URL it came from,
   # and :backend to use for the computation
   defmodule Result do
-    defstruct score: 0, test: nil, url: nil, backend: nil
+    defstruct score: 0, text: nil, url: nil, backend: nil
   end
 
   # Main entry point for our service

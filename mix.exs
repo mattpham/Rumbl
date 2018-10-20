@@ -44,6 +44,7 @@ defmodule Rumbl.MixProject do
       {:cowboy, "~> 1.0"},
       {:comeonin, "~> 4.1"},
       {:pbkdf2_elixir, "~> 0.12"},
+      {:sweet_xml, "~> 0.6.5"},
     ]
   end
 
