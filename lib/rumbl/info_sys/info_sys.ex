@@ -15,14 +15,18 @@ defmodule Rumbl.InfoSys do
     defstruct score: 0, text: nil, url: nil, backend: nil
   end
 
+  alias Rumbl.InfoSys.Cache
+
   # Main entry point for our service
   def compute(query, opts \\ []) do
     timeout = opts[:timeout] || 10_000
     opts = Keyword.put_new(opts, :limit, 10)
     backends = opts[:backends] || @backends
 
-    # maps over all backends and calls async_query for each
-    backends
+    {uncached_backends, cached_results} = fetch_cached_results(backends, query, opts)
+
+    # maps over all backends and calls async_query for each backet
+    uncached_backends
     |> Enum.map(&async_query(&1, query, opts))
     # will wait for results
     |> Task.yield_many(timeout)
@@ -38,10 +42,42 @@ defmodule Rumbl.InfoSys do
       {:ok, results} -> results
       _ -> []
     end)
+    |> write_results_to_cache(query, opts)
+    # Concatenates with cached_results
+    |> Kernel.++(cached_results)
     # sort results by score and report top ones
     |> Enum.sort(&(&1.score >= &2.score))
     # return up to client specified limit
     |> Enum.take(opts[:limit])
+  end
+
+  # Function to take all backends and accumulate the cached results for the given
+  # query, as well as backends which contain no cached information.
+  #
+  # This way we can return both cached result set as well as the remaing backends
+  # that need fresh queries
+  defp fetch_cached_results(backends, query, opts) do
+    {uncached_backends, results} =
+      Enum.reduce(
+        backends,
+        {[], []},
+        fn backend, {uncached_backends, acc_results} ->
+          case Cache.fetch({backend.name(), query, opts[:limit]}) do
+            {:ok, results} -> {uncached_backends, [results | acc_results]}
+            :error -> {[backend | uncached_backends], acc_results}
+          end
+        end
+      )
+
+    {uncached_backends, List.flatten(results)}
+  end
+
+  defp write_results_to_cache(results, query, opts) do
+    Enum.map(results, fn %Result{backend: backend} = result ->
+      :ok = Cache.put({backend.name(), query, opts[:limit]}, result)
+
+      result
+    end)
   end
 
   # spawn off a task to do the work
