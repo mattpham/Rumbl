@@ -17,11 +17,31 @@ defmodule Rumbl.InfoSys do
 
   # Main entry point for our service
   def compute(query, opts \\ []) do
+    timeout = opts[:timeout] || 10_000
     opts = Keyword.put_new(opts, :limit, 10)
     backends = opts[:backends] || @backends
+
     # maps over all backends and calls async_query for each
     backends
     |> Enum.map(&async_query(&1, query, opts))
+    # will wait for results
+    |> Task.yield_many(timeout)
+    # map over each result that comes in task-result tuple
+    # Shortcircuited evaluation for res, if res is nil process the right side
+    #   to shutdown the task with the :brutal_kill option "immediate shutdown"
+    #   without waiting for compeltion.
+    # This also protects us from a race condition. A task could complete between
+    #   when we yield_many and when we process results
+    |> Enum.map(fn {task, res} -> res || Task.shutdown(task, :brutal_kill) end)
+    # Task either returns :ok or :error, we ignore errors by returning []
+    |> Enum.flat_map(fn
+      {:ok, results} -> results
+      _ -> []
+    end)
+    # sort results by score and report top ones
+    |> Enum.sort(&(&1.score >= &2.score))
+    # return up to client specified limit
+    |> Enum.take(opts[:limit])
   end
 
   # spawn off a task to do the work
